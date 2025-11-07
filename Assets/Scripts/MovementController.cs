@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MovementController : MonoBehaviour
 {
@@ -7,31 +8,49 @@ public class MovementController : MonoBehaviour
     private float speed = 10f;
     [SerializeField]
     private float jumpForce = 10f;
-
-    private Rigidbody2D _rb;
+    [SerializeField]
+    private Rigidbody2D rb;
+    
+    public Rigidbody2D Rb => rb;
+    public UnityEvent playerJump;
+    public UnityEvent playerLanding;
+    public UnityEvent playerInAirChanged;
+    
     private bool _inAir;
 
-    void Start()
+    public bool InAir
     {
-        _rb = GetComponent<Rigidbody2D>();
+        get => _inAir;
+        private set
+        {
+            _inAir = value;
+            playerInAirChanged.Invoke();
+        }
+    }
+
+    private void Awake()
+    {
+        GroundedCheck();
     }
 
     void Update()
     {
-        if (Input.GetButtonDown("Jump") )
+        if (Input.GetButtonDown("Jump"))
         {
-            Debug.Log("Jump");
-            if (!_inAir)
+            if (!InAir)
             {
-                _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-                _inAir = true;
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                InAir = true;
+                playerJump.Invoke();
             }
         }
     }
 
     private void FixedUpdate()
     {
-        _rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, _rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, rb.linearVelocity.y);
+
+        FlipTowardsMovement();
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -41,7 +60,7 @@ public class MovementController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D other)
     {
-        if(!_inAir)
+        if(!InAir)
         {
             GroundedCheck();    
         }
@@ -53,11 +72,22 @@ public class MovementController : MonoBehaviour
 
         if(hit.collider != null)
         {
-            _inAir = false;
+            InAir = false;
+            playerLanding.Invoke();
         }
         else
         {
-            _inAir = true;
+            InAir = true;
         }
+    }
+    
+    private void FlipTowardsMovement()
+    {
+        transform.localScale = rb.linearVelocity.x switch
+        {
+            > 0 => new Vector3(1, 1, 1),
+            < 0 => new Vector3(-1, 1, 1),
+            _ => transform.localScale
+        };
     }
 }
