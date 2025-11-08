@@ -1,0 +1,82 @@
+using System;
+using UnityEngine;
+
+public class EnemyController : MonoBehaviour
+{
+    [SerializeField]
+    private GameObject[] patrolPoints;
+    [SerializeField]
+    private float speed = 15f;
+    [SerializeField] 
+    private float attackingSpeed = 30f;
+    [SerializeField]
+    private bool isFlying;
+    [SerializeField]
+    private PlayerDetectorController playerDetector;
+
+    private Rigidbody2D rb;
+    private int currentTargetIndex;
+    private bool chasingPlayer;
+    private Transform playerTransform;
+    private PlayerController playerController;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        playerController = playerTransform.parent.GetComponent<PlayerController>();
+        
+        if (playerDetector)
+        {
+            playerDetector.playerDetected.AddListener(()=>
+            {
+                if (!playerController.isHiddenInBush)
+                {
+                    TargetPlayer();
+                }
+            });
+        }
+
+        if (isFlying)
+        {
+            rb.gravityScale = 0;
+        }
+    }
+    
+    void Update()
+    {
+        Vector2 targetPosition = chasingPlayer ? playerTransform.position : patrolPoints[currentTargetIndex].transform.position;
+        Vector2 direction = (targetPosition - rb.position).normalized;
+        
+        rb.MovePosition(rb.position + direction * (speed * Time.deltaTime));
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("EnemyTarget"))
+        {
+            if(currentTargetIndex < patrolPoints.Length - 1)
+            {
+                currentTargetIndex++;
+            }
+            else
+            {
+                currentTargetIndex = 0;
+            }
+        }    
+    }
+    
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            playerController.Die(true);
+        }
+    }
+    
+    private void TargetPlayer()
+    {
+        speed = attackingSpeed;
+        chasingPlayer = true;
+    }
+}

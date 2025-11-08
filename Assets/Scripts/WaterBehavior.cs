@@ -19,11 +19,13 @@ public class WaterBehavior : MonoBehaviour
         {
             GetComponent<SpriteRenderer>().color = (Color.blue + 0.5f * Color.white).WithAlpha(0.5f);
             _boxCollider.enabled = true;
+            gameObject.layer = LayerMask.NameToLayer("Terrain");
         }
         else
         {
             GetComponent<SpriteRenderer>().color = Color.blue.WithAlpha(0.5f);
             _boxCollider.enabled = false;
+            gameObject.layer = LayerMask.NameToLayer("Water");
         }
     }
 }

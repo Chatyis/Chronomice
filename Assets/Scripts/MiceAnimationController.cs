@@ -10,15 +10,14 @@ public class MiceAnimationController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private MovementController movementController;
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         movementController.playerJump.AddListener(() => animator.SetTrigger(Jumping));
-        movementController.playerLanding.AddListener(() => { animator.SetTrigger(Landing); Debug.Log("Landing Triggered"); });
-        movementController.playerInAirChanged.AddListener(() => animator.SetBool(InAir, movementController.InAir));
+        movementController.playerLanding.AddListener(() => animator.SetTrigger(Landing));
+        movementController.playerInAirChanged.AddListener(UpdateInAir);
+        movementController.playerClimbingChanged.AddListener(UpdateInAir);
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if(movementController.Rb.linearVelocity.x != 0)
@@ -29,5 +28,11 @@ public class MiceAnimationController : MonoBehaviour
         {
             animator.SetBool(IsRunning, false);
         }
+    }
+
+    void UpdateInAir()
+    {
+        animator.SetBool(InAir, movementController.InAir && !movementController.isClimbing);
+        animator.SetBool(InAir, movementController.InAir && !movementController.isClimbing);
     }
 }

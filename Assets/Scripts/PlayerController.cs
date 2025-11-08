@@ -12,14 +12,18 @@ public class PlayerController : MonoBehaviour
     
     private SeasonManager _seasonManager;
     private PlayerAgeManager _playerAgeManager;
+    private EventManager _eventManager;
     
     public UnityEvent playerDeath;
+    public bool isHiddenInBush;
     
     private void Awake()
     {
         _seasonManager = FindFirstObjectByType<SeasonManager>();
         _playerAgeManager = FindFirstObjectByType<PlayerAgeManager>();
+        _eventManager = FindFirstObjectByType<EventManager>();
         _playerAgeManager.ageChange.AddListener(OnAgeChange);
+        _eventManager.bushEnteredByPlayer.AddListener((value)=>isHiddenInBush = value);
     }
 
     private void Update()
@@ -30,12 +34,17 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    public void Die()
+    public void Die(bool wasKilled = false)
     {
         // Instantiate corpse prefab at player's position, then move player at start with age = 0, as new mice
         playerDeath.Invoke();
-        
-        Debug.Log("Player has died of old age.");
+        if (wasKilled)
+        {
+            Debug.Log("Player was killed.");    
+        }
+        else {
+            Debug.Log("Player has died of old age.");
+        }
     }
     
     private void OnAgeChange()

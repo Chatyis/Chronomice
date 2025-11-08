@@ -10,13 +10,15 @@ public class MovementController : MonoBehaviour
     private float jumpForce = 10f;
     [SerializeField]
     private Rigidbody2D rb;
-    
+
     public Rigidbody2D Rb => rb;
     public UnityEvent playerJump;
     public UnityEvent playerLanding;
     public UnityEvent playerInAirChanged;
+    public UnityEvent playerClimbingChanged;
     
     private bool _inAir;
+    private bool _isClimbing;
 
     public bool InAir
     {
@@ -25,6 +27,15 @@ public class MovementController : MonoBehaviour
         {
             _inAir = value;
             playerInAirChanged.Invoke();
+        }
+    }
+    public bool isClimbing
+    {
+        get => _isClimbing;
+        private set
+        {
+            _isClimbing = value; 
+            playerClimbingChanged.Invoke();
         }
     }
 
@@ -37,7 +48,7 @@ public class MovementController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump"))
         {
-            if (!InAir)
+            if (!InAir && !isClimbing)
             {
                 rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
                 InAir = true;
@@ -48,8 +59,8 @@ public class MovementController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, rb.linearVelocity.y);
-
+        rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, isClimbing ? Input.GetAxis("Vertical") * speed / 2f : rb.linearVelocity.y);
+        
         FlipTowardsMovement();
     }
 
@@ -63,6 +74,25 @@ public class MovementController : MonoBehaviour
         if(!InAir)
         {
             GroundedCheck();    
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Climbable"))
+        {
+            Debug.Log("Entered Climbable");
+            isClimbing = true;
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Climbable"))
+        {
+            Debug.Log("Exited Climbable");
+            GroundedCheck();
+            isClimbing = false;
         }
     }
 
