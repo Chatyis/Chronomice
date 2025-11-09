@@ -20,22 +20,13 @@ public class IcicleBehavior : MonoBehaviour
     {
         if (_seasonManager.CurrentSeason == Season.WINTER)
         {
-            gameObject.GetComponent<SpriteRenderer>().color = Color.aquamarine;
+            gameObject.GetComponent<SpriteRenderer>().enabled = true;
             _collider2D.enabled = true;
         }
         else
         {
-            gameObject.GetComponent<SpriteRenderer>().color = Color.gray;
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
             _collider2D.enabled = false;
-        }
-    }
-
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if(other.collider.CompareTag("Player"))
-        {
-            PlayerController player = other.collider.transform.parent.GetComponent<PlayerController>();
-            player.Die(true);
         }
     }
 }

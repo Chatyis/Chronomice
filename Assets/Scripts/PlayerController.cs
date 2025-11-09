@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.PlayerLoop;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -9,10 +10,13 @@ public class PlayerController : MonoBehaviour
     private GameObject adultMicePrefab;
     [SerializeField] 
     private GameObject youngMicePrefab;
+    [SerializeField] 
+    private GameObject initialSpawner;
     
     private SeasonManager _seasonManager;
     private PlayerAgeManager _playerAgeManager;
     private EventManager _eventManager;
+    private GameObject _playerSpawner;
     
     public UnityEvent playerDeath;
     public bool isHiddenInBush;
@@ -22,8 +26,10 @@ public class PlayerController : MonoBehaviour
         _seasonManager = FindFirstObjectByType<SeasonManager>();
         _playerAgeManager = FindFirstObjectByType<PlayerAgeManager>();
         _eventManager = FindFirstObjectByType<EventManager>();
+        _playerSpawner = initialSpawner;
         _playerAgeManager.ageChange.AddListener(OnAgeChange);
         _eventManager.bushEnteredByPlayer.AddListener((value)=>isHiddenInBush = value);
+        _eventManager.checkpointCaptured.AddListener((checkpoint)=>_playerSpawner = checkpoint);
     }
 
     private void Update()
@@ -31,6 +37,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Submit"))
         {
             _seasonManager.ToggleSeason();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StaticData.CheeseScore = StaticData.CheeseScoreBeforeReload;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
     
@@ -40,10 +52,10 @@ public class PlayerController : MonoBehaviour
         playerDeath.Invoke();
         if (wasKilled)
         {
-            Debug.Log("Player was killed.");    
+            transform.position = _playerSpawner.transform.position;
         }
         else {
-            Debug.Log("Player has died of old age.");
+            transform.position = _playerSpawner.transform.position;
         }
     }
     

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    private static readonly int IsAttacking = Animator.StringToHash("isAttacking");
+
     [SerializeField]
     private GameObject[] patrolPoints;
     [SerializeField]
@@ -19,12 +21,21 @@ public class EnemyController : MonoBehaviour
     private bool chasingPlayer;
     private Transform playerTransform;
     private PlayerController playerController;
+    private Animator _animator;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         playerController = playerTransform.parent.GetComponent<PlayerController>();
+        _animator = GetComponent<Animator>();
+        playerController.playerDeath.AddListener(()=>
+        {
+            speed = 15f;
+            chasingPlayer = false;
+            _animator.SetBool(IsAttacking, false);
+            transform.position = patrolPoints[currentTargetIndex].transform.position;
+        });
         
         if (playerDetector)
         {
@@ -47,6 +58,16 @@ public class EnemyController : MonoBehaviour
     {
         Vector2 targetPosition = chasingPlayer ? playerTransform.position : patrolPoints[currentTargetIndex].transform.position;
         Vector2 direction = (targetPosition - rb.position).normalized;
+        
+            
+        if (targetPosition.x >= rb.position.x)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        else
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
         
         rb.MovePosition(rb.position + direction * (speed * Time.deltaTime));
     }
@@ -78,5 +99,6 @@ public class EnemyController : MonoBehaviour
     {
         speed = attackingSpeed;
         chasingPlayer = true;
+        _animator.SetBool(IsAttacking, true);
     }
 }

@@ -13,7 +13,7 @@ public class ScoreBehavior : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        _eventManager.scorePickedUp.Invoke(true);
+        _eventManager.scorePickedUp.Invoke();
         Destroy(gameObject);
     }
 }

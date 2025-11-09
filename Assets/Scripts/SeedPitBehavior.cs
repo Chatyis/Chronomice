@@ -5,14 +5,17 @@ using UnityEngine;
 public class SeedPitBehavior : MonoBehaviour
 {
     [SerializeField] private GameObject plantPrefab;
+    [SerializeField] private Sprite fullSeedPitSprite;
     
     private bool _isSeedInside;
     private SeasonManager _seasonManager;
+    private SpriteRenderer _spriteRenderer;
 
     private void Awake()
     {
         _seasonManager = FindFirstObjectByType<SeasonManager>();
         _seasonManager.seasonChange.AddListener(OnSeasonChange);
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -20,7 +23,8 @@ public class SeedPitBehavior : MonoBehaviour
         if (!other.CompareTag("Seed")) return;
         
         _isSeedInside = true;
-        //TODO Change sprite to a planted seed pit
+        _spriteRenderer.sprite = fullSeedPitSprite;
+        
         Destroy(other.gameObject);
     }
     

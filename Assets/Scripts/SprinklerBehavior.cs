@@ -6,10 +6,13 @@ public class SprinklerBehavior : MonoBehaviour
 {
     [SerializeField]
     private float sprinkleForce = 45f;
+    [SerializeField] private Sprite winterSprite;
+    [SerializeField] private Sprite springSprite;
     
     private SeasonManager _seasonManager;
     private PlayerAgeManager _playerAgeManager;
     private Rigidbody2D _playerRb;
+    private SpriteRenderer _spriteRenderer;
     private IEnumerator _coroutine;
     
     void Awake()
@@ -18,6 +21,7 @@ public class SprinklerBehavior : MonoBehaviour
         _seasonManager = FindFirstObjectByType<SeasonManager>();
         _seasonManager.seasonChange.AddListener(OnSeasonChange);
         _playerAgeManager = FindFirstObjectByType<PlayerAgeManager>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
         OnSeasonChange();
     }
     
@@ -26,12 +30,12 @@ public class SprinklerBehavior : MonoBehaviour
         if (_seasonManager.CurrentSeason == Season.SPRING)
         {
             StartCoroutine(_coroutine);
-            //TODO Change sprite to an active sprinkler
+            _spriteRenderer.sprite = springSprite;
         }
         else
         {
             StopCoroutine(_coroutine);
-            //TODO Change sprite to a frozen sprinkler
+            _spriteRenderer.sprite = winterSprite;
         }
     }
     
@@ -39,7 +43,7 @@ public class SprinklerBehavior : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1f);
 
             if (_playerRb)
             {

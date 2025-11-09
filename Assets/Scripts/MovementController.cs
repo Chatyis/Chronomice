@@ -62,6 +62,7 @@ public class MovementController : MonoBehaviour
         rb.linearVelocity = new Vector2(Input.GetAxis("Horizontal") * speed, isClimbing ? Input.GetAxis("Vertical") * speed / 2f : rb.linearVelocity.y);
         
         FlipTowardsMovement();
+        GroundedCheck();
     }
 
     private void OnCollisionEnter2D(Collision2D other)

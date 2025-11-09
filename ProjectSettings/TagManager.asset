@@ -7,6 +7,7 @@ TagManager:
   - Climbable
   - EnemyTarget
   - Seed
+  - PlayerSpawner
   layers:
   - Default
   - TransparentFX
