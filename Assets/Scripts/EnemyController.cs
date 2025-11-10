@@ -27,7 +27,7 @@ public class EnemyController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
-        playerController = playerTransform.parent.GetComponent<PlayerController>();
+        playerController = FindFirstObjectByType<PlayerController>();
         _animator = GetComponent<Animator>();
         playerController.playerDeath.AddListener(()=>
         {
